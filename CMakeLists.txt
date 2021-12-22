@@ -15,3 +15,5 @@ Thirdparty/DLib/FileFunctions.cpp)
 
 target_link_libraries (${PROJECT_NAME}
 ${OpenCV_LIBS})
+target_link_libraries (${PROJECT_NAME}
+console_bridge)
