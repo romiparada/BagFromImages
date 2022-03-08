@@ -28,11 +28,17 @@ int main(int argc, char **argv)
 
     ros::start();
 
-    // Vector of paths to image
-    vector<string> filenames =
-            DUtils::FileFunctions::Dir(argv[1], argv[2], true);
+    string dir(argv[1]);
 
-    cout << "Images: " << filenames.size() << endl;
+    // Vector of paths to image
+    vector<string> filenames_rgb =
+            DUtils::FileFunctions::Dir((dir + "/rgb").c_str(), argv[2], true);
+
+    // Vector of paths to image
+    vector<string> filenames_depth =
+            DUtils::FileFunctions::Dir((dir + "/depth").c_str(), argv[2], true);
+
+    //cout << "Images: " << filenames.size() << endl;
 
     // Frequency
     double freq = atof(argv[3]);
@@ -45,19 +51,38 @@ int main(int argc, char **argv)
     const float T=1.0f/freq;
     ros::Duration d(T);
 
-    for(size_t i=0;i<filenames.size();i++)
+
+    ros::Time t_rgb = t;
+    for(size_t i=0;i<filenames_rgb.size();i++)
     {
         if(!ros::ok())
             break;
 
-        cv::Mat im = cv::imread(filenames[i],CV_LOAD_IMAGE_COLOR);
+        cv::Mat im = cv::imread(filenames_rgb[i],CV_LOAD_IMAGE_COLOR);
         cv_bridge::CvImage cvImage;
         cvImage.image = im;
-        cvImage.encoding = sensor_msgs::image_encodings::RGB8;
-        cvImage.header.stamp = t;
-        bag_out.write("/camera/image_raw",ros::Time(t),cvImage.toImageMsg());
-        t+=d;
-        cout << i << " / " << filenames.size() << endl;
+        cvImage.encoding = sensor_msgs::image_encodings::BGR8;
+        cvImage.header.stamp = t_rgb;
+        bag_out.write("/rgb/image_raw",ros::Time(t_rgb),cvImage.toImageMsg());
+        t_rgb+=d;
+        cout << i << " / " << filenames_rgb.size() << endl;
+    }
+
+
+    ros::Time t_depth = t;
+    for(size_t i=0;i<filenames_depth.size();i++)
+    {
+        if(!ros::ok())
+            break;
+
+        cv::Mat im = cv::imread(filenames_depth[i], CV_LOAD_IMAGE_UNCHANGED);
+        cv_bridge::CvImage cvImage;
+        cvImage.image = im;
+        cvImage.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+        cvImage.header.stamp = t_depth;
+        bag_out.write("/depth/image_raw",ros::Time(t_depth),cvImage.toImageMsg());
+        t_depth+=d;
+        cout << i << " / " << filenames_depth.size() << endl;
     }
 
     bag_out.close();
