@@ -1,4 +1,5 @@
 #include<iostream>
+#include <iomanip>
 #include<ros/ros.h>
 #include<rosbag/bag.h>
 #include<rosbag/view.h>
@@ -62,9 +63,16 @@ int main(int argc, char **argv)
         cv_bridge::CvImage cvImage;
         cvImage.image = im;
         cvImage.encoding = sensor_msgs::image_encodings::BGR8;
+
+	int offset = (dir+"/rgb/").size();
+	double sec = stod(filenames_rgb[i].substr(offset, 16));
+	t_rgb = ros::Time(sec);
+	
         cvImage.header.stamp = t_rgb;
-        bag_out.write("/rgb/image_raw",ros::Time(t_rgb),cvImage.toImageMsg());
-        t_rgb+=d;
+        bag_out.write("/rgb/image_raw", t_rgb, cvImage.toImageMsg());
+
+        //t_rgb+=d;
+
         cout << i << " / " << filenames_rgb.size() << endl;
     }
 
@@ -79,9 +87,16 @@ int main(int argc, char **argv)
         cv_bridge::CvImage cvImage;
         cvImage.image = im;
         cvImage.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+
+	int offset = (dir+"/depth/").size();
+	double sec = stod(filenames_depth[i].substr(offset, 16));
+	t_depth = ros::Time(sec);
+
         cvImage.header.stamp = t_depth;
         bag_out.write("/depth/image_raw",ros::Time(t_depth),cvImage.toImageMsg());
-        t_depth+=d;
+
+        //t_depth+=d;
+
         cout << i << " / " << filenames_depth.size() << endl;
     }
 
