@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	t_rgb = ros::Time(sec);
 	
         cvImage.header.stamp = t_rgb;
-        bag_out.write("/rgb/image_raw", t_rgb, cvImage.toImageMsg());
+        bag_out.write("/camera/rgb/image_color", t_rgb, cvImage.toImageMsg());
 
         //t_rgb+=d;
 
@@ -86,14 +86,14 @@ int main(int argc, char **argv)
         cv::Mat im = cv::imread(filenames_depth[i], CV_LOAD_IMAGE_UNCHANGED);
         cv_bridge::CvImage cvImage;
         cvImage.image = im;
-        cvImage.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+        cvImage.encoding = sensor_msgs::image_encodings::MONO16;
 
 	int offset = (dir+"/depth/").size();
 	double sec = stod(filenames_depth[i].substr(offset, 16));
 	t_depth = ros::Time(sec);
 
         cvImage.header.stamp = t_depth;
-        bag_out.write("/depth/image_raw",ros::Time(t_depth),cvImage.toImageMsg());
+        bag_out.write("/camera/depth/image",ros::Time(t_depth),cvImage.toImageMsg());
 
         //t_depth+=d;
 
